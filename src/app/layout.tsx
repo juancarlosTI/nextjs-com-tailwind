@@ -1,7 +1,6 @@
 import "./globals.css";
 
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import { Poppins } from "next/font/google";
 
 const poppins = Poppins({
@@ -10,6 +9,10 @@ const poppins = Poppins({
 });
 
 
+export const metadata: Metadata = {
+  title: "FSW Donalds",
+  description: "Bora finalizar esse projeto lindo!",
+};
 
 export default function RootLayout({
   children,
@@ -21,7 +24,6 @@ export default function RootLayout({
       <body
         className={`${poppins.className}`}
       >
-        layout
         {children}
       </body>
     </html>

@@ -2,6 +2,7 @@
 import { Product, Restaurant } from "@prisma/client";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { useState } from "react";
 
@@ -22,6 +23,7 @@ const ProductDetails = ({ product, restaurant, params }: ProductDetailsProps) =>
         validation: false
     });
 
+    //Handler's
     const handleQuantity = (type: string) => {
         if (type === "minus" && quantity > 1) {
             setQuantity(prevState => prevState - 1)
@@ -38,6 +40,7 @@ const ProductDetails = ({ product, restaurant, params }: ProductDetailsProps) =>
     }
 
     const handleConfirmOrder = () => {
+        // Salvar pedido no redux
         if (isModalOpen.validation) {
             return setIsModalOpen({
                 isOpen: false,
@@ -162,7 +165,9 @@ const ProductDetails = ({ product, restaurant, params }: ProductDetailsProps) =>
                         </p>
                     </div>
                     <div className="flex justify-between">
-                        <Button variant="ghost" className="rounded-3xl w-[130px] text-red-500 font-semibold">Ver pedidos</Button>
+                        <Link href={`/${slug}/menu/cart?consumptionMethod=DINE_IN`}>
+                            <Button variant="ghost" className="rounded-3xl w-[130px] text-red-500 font-semibold">Ver pedidos</Button>
+                        </Link>
                         <Button variant="secondary" className="rounded-3xl w-[130px] font-semibold" onClick={() => handleConfirmOrder()}>Continuar</Button>
                     </div>
                 </DialogContent>
@@ -174,25 +179,5 @@ const ProductDetails = ({ product, restaurant, params }: ProductDetailsProps) =>
 
 {/* - Borda redonda 
     - Precisa estar fixa, independente da rolagem da tela (Se ela estiver centralizada horizontalmente, o tamanho da listagem dos detalhes pode alterar a centralização)*/}
-const modalDados = () => {
-    return (
-        <div className="">
-            <div className="flex items-center">
-                <h2>Quase lá</h2>
-
-            </div>
-            <form>
-                <h4>Seu nome</h4>
-                <Input type="name" placeholder="Nome" />
-                <h4>Seu CPF</h4>
-                <Input type="cpf" placeholder="Seu CPF" />
-            </form>
-            <div className="flex justify-between">
-                <Button className="rounded-full bg-gray-300">Cancelar</Button>
-                <Button className="rounded-full bg-red-500">Finalizar</Button>
-            </div>
-        </div>
-    )
-}
 
 export default ProductDetails;

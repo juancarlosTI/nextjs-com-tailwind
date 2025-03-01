@@ -10,12 +10,12 @@ import ProductHeader from "./components/header";
 
 interface ProductPageProps {
     searchParams: {item: string;};
-    params: Promise<{ slug: string }>
+    params: { slug: string }
 }
 
 
 const ProductPage  = async ({ searchParams, params }: ProductPageProps) => {
-    const {item} = searchParams;
+    const {item} = await searchParams;
     const {slug} = await params;
 
     console.log("Slug,", slug)

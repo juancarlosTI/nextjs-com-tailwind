@@ -3,11 +3,13 @@ import { notFound } from "next/navigation";
 import { db } from "@/lib/prisma";
 
 import RestaurantCategories from "../components/categories";
+import { ConsumptionMethodProvider } from "../context/consumptionMethodContext";
+import ConsumptionMethodWrapper from "../context/consumptionMethodWrapper";
 import RestaurantHeader from "./components/header";
 
 interface RestaurantMenuPageProps {
-    params: Promise<{ slug: string }>
-    searchParams: Promise<{ consumptionMethod: string }>
+    params: { slug: string }
+    searchParams: { consumptionMethod: string }
 }
 
 const isConsumptionMethodValid = (consumptionMethod: string) => {
@@ -21,21 +23,33 @@ const RestaurantMenuPage = async ({ params, searchParams }: RestaurantMenuPagePr
     if (!isConsumptionMethodValid(consumptionMethod)) {
         return notFound();
     }
-    const restaurant = await db.restaurant.findUnique({ where: { slug }, 
-        include:{
-            menuCategories:{
+
+
+    // Criar contexto para o consumptionMethod - Só será permitido pedidos do mesmo restaurante
+
+
+    const restaurant = await db.restaurant.findUnique({
+        where: { slug },
+        include: {
+            menuCategories: {
                 include: {
-                    products:true
+                    products: true
                 }
             }
-        } })
+        }
+    })
     if (!restaurant) {
         return notFound();
     }
     return (
         <div>
-            <RestaurantHeader restaurant={restaurant}/>
-            <RestaurantCategories restaurant={restaurant}/>
+            <ConsumptionMethodProvider consumptionMethod={consumptionMethod}>
+                <ConsumptionMethodWrapper>
+                    <RestaurantHeader restaurant={restaurant} />
+                    <RestaurantCategories restaurant={restaurant} />
+                </ConsumptionMethodWrapper>
+            </ConsumptionMethodProvider>
+
         </div >
     );
 }

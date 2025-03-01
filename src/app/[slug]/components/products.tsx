@@ -1,7 +1,10 @@
+"use client";
 import { Product } from "@prisma/client";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from 'next/navigation';
+import { usePathname } from "next/navigation";
+
+import { useConsumptionMethod } from "../context/consumptionMethodContext"; 
 
 
 interface ProductsProps {
@@ -10,12 +13,17 @@ interface ProductsProps {
 
 const Products = ({ products }: ProductsProps) => {
 
-    const currentPath = usePathname(); // Obtém a URL atual
+    const currentUrl = usePathname();
 
+    // Contexto 
+    const { consumptionMethodContext } = useConsumptionMethod();  
+
+    console.log('Consumption Method - Products: ', consumptionMethodContext);
+    
     return (
         <div className="space-y-3 px-5 py-3">
             {products.map(product => (
-                <Link key={product.id} href={`${currentPath}/product?item=${product.id}&consumptionMethod=DINE_IN`} className="flex items-center justify-between gap-10 py-3">
+                <Link key={product.id} href={`${currentUrl}/product?item=${product.id}&consumptionMethod=${consumptionMethodContext}`} className="flex items-center justify-between gap-10 py-3">
                     {/* Esquerda */}
                     <div>
                         <h3 className="text-sm font-medium">

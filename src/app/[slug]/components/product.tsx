@@ -1,5 +1,5 @@
 "use client"
-import { Product, Restaurant } from "@prisma/client";
+import { ConsumptionMethod, OrderProduct, Product, Restaurant } from "@prisma/client";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -8,14 +8,16 @@ import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { RootState } from "@/app/orders/store/components/store";
+import { setOrder } from "@/app/orders/store/reducers/orderProducts";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 
+
 interface ProductDetailsProps {
     product: Product
     restaurant: Restaurant
-    params: { slug: string }
+    params: { slug: string , consumptionMethod:string}
 }
 
 const ProductDetails = ({ product, restaurant, params }: ProductDetailsProps) => {
@@ -24,13 +26,13 @@ const ProductDetails = ({ product, restaurant, params }: ProductDetailsProps) =>
         isOpen: false,
         validation: false
     });
+    
+    const { slug } = params;
 
     // Como obter o pedido? Redux
     const dispatch = useDispatch();
-    const orders = useSelector((state: RootState) => state.orders);
-    
-
-    console.log("Orders :", orders)
+    const orderProducts = useSelector((state: RootState) => state.orderProduct);
+    const order = useSelector((state:RootState)=> state.order)
 
     //Handler's
     const handleQuantity = (type: string) => {
@@ -42,13 +44,14 @@ const ProductDetails = ({ product, restaurant, params }: ProductDetailsProps) =>
     }
 
     const handleModalOpen = () => {
+        console.log(order)
         setIsModalOpen((prev) => ({
             ...prev,
             isOpen: !prev.isOpen
         }))
     }
 
-    const handleConfirmOrder = () => {
+    const handleConfirmOrderProduct = () => {
         // Salvar pedido no redux
         if (isModalOpen.validation) {
             return setIsModalOpen({
@@ -56,17 +59,32 @@ const ProductDetails = ({ product, restaurant, params }: ProductDetailsProps) =>
                 validation: false
             })
         }
-        // O Schema Prisma possui a estrutura de um pedido (Order) - ID autoincrement; 
-        // id                Int               @id @default(autoincrement())
-        // total             Float
-        // status            OrderStatus
-        // consumptionMethod ConsumptionMethod
-        // restaurant        Restaurant        @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
-        // restaurantId      String
-        // orderProducts     OrderProduct[]
-        // createdAt         DateTime          @default(now())
-        // updatedAt         DateTime          @updatedAt
-        
+
+        // Checar estado do redux
+
+        // const orderProduct : OrderProduct = {
+        //     product:product,
+        //     productId: product.id,
+
+
+
+        // }
+        if (order.id === 0){
+            // Significa que o estado é o inicial. - Iniciar o order
+            dispatch(setOrder({
+                id:0,
+                consumptionMethod: slug as ConsumptionMethod,
+                status:"PENDING",
+                total: 1,
+                createdAt:new Date(),
+                updatedAt:new Date(),
+                restaurantId: restaurant.id
+            }))
+        } else {
+            // dispatch()
+            console.log(order);
+        }
+
         setIsModalOpen((prev) => ({
             isOpen: !prev.isOpen,
             validation: !prev.validation
@@ -76,8 +94,6 @@ const ProductDetails = ({ product, restaurant, params }: ProductDetailsProps) =>
     // chartContext possuirá o produto e a quantidade;
     // Só podem ser adicionado produtos da mesma loja por pedido;
 
-
-    const { slug } = params;
 
     if (!slug) {
         return notFound();
@@ -158,12 +174,12 @@ const ProductDetails = ({ product, restaurant, params }: ProductDetailsProps) =>
                     </form>
                     <div className="flex justify-between">
                         <Button onClick={() => handleModalOpen()} className="rounded-full bg-gray-300 w-[130px] font-semibold">Cancelar</Button>
-                        <Button className="rounded-full bg-red-500 w-[130px] font-semibold" onClick={() => handleConfirmOrder()}>Finalizar</Button>
+                        <Button className="rounded-full bg-red-500 w-[130px] font-semibold" onClick={() => handleConfirmOrderProduct()}>Finalizar</Button>
                     </div>
                 </DialogContent>
             </Dialog>
 
-            <Dialog open={isModalOpen.validation} onOpenChange={() => handleConfirmOrder()}>
+            <Dialog open={isModalOpen.validation} onOpenChange={() => handleConfirmOrderProduct()}>
                 <DialogContent className="rounded-3xl flex flex-col w-[340px] min-h-[280px]">
                     <DialogHeader className="flex flex-col items-center">
                         <div className="flex justify-center w-[80px] h-[80px]">
@@ -188,7 +204,7 @@ const ProductDetails = ({ product, restaurant, params }: ProductDetailsProps) =>
                         <Link href={`/${slug}/menu/cart?consumptionMethod=DINE_IN`}>
                             <Button variant="ghost" className="rounded-3xl w-[130px] text-red-500 font-semibold">Ver pedidos</Button>
                         </Link>
-                        <Button variant="secondary" className="rounded-3xl w-[130px] font-semibold" onClick={() => handleConfirmOrder()}>Continuar</Button>
+                        <Button variant="secondary" className="rounded-3xl w-[130px] font-semibold" onClick={() => handleConfirmOrderProduct()}>Continuar</Button>
                     </div>
                 </DialogContent>
             </Dialog>

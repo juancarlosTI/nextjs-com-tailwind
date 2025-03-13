@@ -6,7 +6,7 @@ import { RootState } from "../store/components/store";
 
 const OrdersDetails = () => {
 
-    const orders = useSelector((state: RootState) => state.orders);
+    const orders = useSelector((state: RootState) => state.orderProduct);
 
     return (
         <div className="pt-24 px-5">
@@ -17,7 +17,7 @@ const OrdersDetails = () => {
             {/* Listagem dos pedidos */}
             <ul>
                 {orders.map((order,index) => (
-                    <li>
+                    <li key={index}>
                         <div>
                             <p>Tipo</p>
                             <p>SLUG</p>

@@ -9,13 +9,13 @@ import ProductHeader from "./components/header";
 
 
 interface ProductPageProps {
-    searchParams: {item: string;};
+    productItem: {item: string;};
     params: { slug: string }
 }
 
 
-const ProductPage  = async ({ searchParams, params }: ProductPageProps) => {
-    const {item} = await searchParams;
+const ProductPage  = async ({ productItem, params }: ProductPageProps) => {
+    const {item} = await productItem;
     const {slug} = await params;
 
     console.log("Slug,", slug)

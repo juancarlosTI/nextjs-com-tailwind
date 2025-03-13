@@ -1,12 +1,17 @@
 import { configureStore } from '@reduxjs/toolkit';
 
-import ordersReducer from "../reducers/orders";
+import {orderProductReducer, orderReducer} from "../reducers/orderProducts";
 
 
 export const store = configureStore({
   reducer: {
-    orders: ordersReducer,
+    order: orderReducer,
+    orderProduct: orderProductReducer,
   },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: false,
+    }),
 });
 
 // Tipagem do RootState e AppDispatch

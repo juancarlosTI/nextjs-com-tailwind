@@ -5,7 +5,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
+import { RootState } from "@/app/orders/store/components/store";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -22,6 +24,13 @@ const ProductDetails = ({ product, restaurant, params }: ProductDetailsProps) =>
         isOpen: false,
         validation: false
     });
+
+    // Como obter o pedido? Redux
+    const dispatch = useDispatch();
+    const orders = useSelector((state: RootState) => state.orders);
+    
+
+    console.log("Orders :", orders)
 
     //Handler's
     const handleQuantity = (type: string) => {
@@ -47,6 +56,17 @@ const ProductDetails = ({ product, restaurant, params }: ProductDetailsProps) =>
                 validation: false
             })
         }
+        // O Schema Prisma possui a estrutura de um pedido (Order) - ID autoincrement; 
+        // id                Int               @id @default(autoincrement())
+        // total             Float
+        // status            OrderStatus
+        // consumptionMethod ConsumptionMethod
+        // restaurant        Restaurant        @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+        // restaurantId      String
+        // orderProducts     OrderProduct[]
+        // createdAt         DateTime          @default(now())
+        // updatedAt         DateTime          @updatedAt
+        
         setIsModalOpen((prev) => ({
             isOpen: !prev.isOpen,
             validation: !prev.validation

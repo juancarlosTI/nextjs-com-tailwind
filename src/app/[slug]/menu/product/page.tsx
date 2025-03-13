@@ -9,13 +9,13 @@ import ProductHeader from "./components/header";
 
 
 interface ProductPageProps {
-    productItem: {item: string;};
+    searchParams: {item: string, consumptionMethod:string};
     params: { slug: string }
 }
 
 
-const ProductPage  = async ({ productItem, params }: ProductPageProps) => {
-    const {item} = await productItem;
+const ProductPage  = async ({ searchParams, params }: ProductPageProps) => {
+    const {item, consumptionMethod} = await searchParams;
     const {slug} = await params;
 
     console.log("Slug,", slug)
@@ -25,15 +25,14 @@ const ProductPage  = async ({ productItem, params }: ProductPageProps) => {
     }
 
     const productSelected : Product = await getProductById(item);
-
     // Carregar a imagem do restaurante na pagina de produto    
     const restaurantId : Restaurant | null = await getRestaurantBySlug(slug);
-
+    // ConsumptionMethod
 
     return (
         <div>
             <ProductHeader product={productSelected}/>
-            <ProductDetails product={productSelected} restaurant={restaurantId} params={{slug}}/>
+            <ProductDetails product={productSelected} restaurant={restaurantId} params={{slug}}  consumptionMethodProps={{consumptionMethod}}/>
         </div>
     );
 }

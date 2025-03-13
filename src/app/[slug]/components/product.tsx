@@ -17,10 +17,11 @@ import { Input } from "@/components/ui/input";
 interface ProductDetailsProps {
     product: Product
     restaurant: Restaurant
-    params: { slug: string , consumptionMethod:string}
+    params: { slug: string }
+    consumptionMethodProps: {consumptionMethod: string}
 }
 
-const ProductDetails = ({ product, restaurant, params }: ProductDetailsProps) => {
+const ProductDetails = ({ product, restaurant, params, consumptionMethodProps }: ProductDetailsProps) => {
     const [quantity, setQuantity] = useState(1);
     const [isModalOpen, setIsModalOpen] = useState({
         isOpen: false,
@@ -28,7 +29,9 @@ const ProductDetails = ({ product, restaurant, params }: ProductDetailsProps) =>
     });
     
     const { slug } = params;
+    const { consumptionMethod }= consumptionMethodProps;
 
+    console.log(consumptionMethod)
     // Como obter o pedido? Redux
     const dispatch = useDispatch();
     const orderProducts = useSelector((state: RootState) => state.orderProduct);
@@ -73,7 +76,7 @@ const ProductDetails = ({ product, restaurant, params }: ProductDetailsProps) =>
             // Significa que o estado é o inicial. - Iniciar o order
             dispatch(setOrder({
                 id:0,
-                consumptionMethod: slug as ConsumptionMethod,
+                consumptionMethod: consumptionMethod as ConsumptionMethod,
                 status:"PENDING",
                 total: 1,
                 createdAt:new Date(),

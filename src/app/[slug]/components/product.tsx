@@ -1,5 +1,5 @@
 "use client"
-import { ConsumptionMethod, OrderProduct, Product, Restaurant } from "@prisma/client";
+import { ConsumptionMethod, OrderStatus, Product, Restaurant } from "@prisma/client";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -8,7 +8,7 @@ import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { RootState } from "@/app/orders/store/components/store";
-import { setOrder } from "@/app/orders/store/reducers/orderProducts";
+import { createOrderWithProduct } from "@/app/orders/store/reducers/orderProducts-and-order";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -18,7 +18,7 @@ interface ProductDetailsProps {
     product: Product
     restaurant: Restaurant
     params: { slug: string }
-    consumptionMethodProps: {consumptionMethod: string}
+    consumptionMethodProps: { consumptionMethod: string }
 }
 
 const ProductDetails = ({ product, restaurant, params, consumptionMethodProps }: ProductDetailsProps) => {
@@ -27,15 +27,14 @@ const ProductDetails = ({ product, restaurant, params, consumptionMethodProps }:
         isOpen: false,
         validation: false
     });
-    
+
     const { slug } = params;
-    const { consumptionMethod }= consumptionMethodProps;
+    const { consumptionMethod } = consumptionMethodProps;
 
     console.log(consumptionMethod)
     // Como obter o pedido? Redux
     const dispatch = useDispatch();
-    const orderProducts = useSelector((state: RootState) => state.orderProduct);
-    const order = useSelector((state:RootState)=> state.order)
+    const order = useSelector((state: RootState) => state.order);
 
     //Handler's
     const handleQuantity = (type: string) => {
@@ -47,7 +46,7 @@ const ProductDetails = ({ product, restaurant, params, consumptionMethodProps }:
     }
 
     const handleModalOpen = () => {
-        console.log(order)
+        console.log("Modal Open: ", order)
         setIsModalOpen((prev) => ({
             ...prev,
             isOpen: !prev.isOpen
@@ -63,26 +62,39 @@ const ProductDetails = ({ product, restaurant, params, consumptionMethodProps }:
             })
         }
 
-        // Checar estado do redux
+        const orderData = {
+            consumptionMethod: consumptionMethod as ConsumptionMethod,
+            status: "PENDING" as OrderStatus,
+            total: product.price * quantity,
+            restaurantId: restaurant.id
+        }
 
-        // const orderProduct : OrderProduct = {
-        //     product:product,
-        //     productId: product.id,
+        const productData = {
+            productId: product.id,
+            quantity: quantity,
+            price: product.price,
+            product: {
+                id: product.id,
+                name: product.name,
+                description: product.description,
+                price: product.price,
+                imageUrl: product.imageUrl,
+                ingredients: product.ingredients,
+                restaurantId: product.restaurantId,
+                menuCategoryId: product.menuCategoryId,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+            }
+        }
 
+        // Verificar se o pedido que está sendo adicionado é do mesmo restaurante
+        // Verificar se já existe um pedido e se o método de consumo é o mesmo
+        // Resolver problema de declaração de ID. (Quando um pedido já existir, ele existirá no banco de dados e terá um ID !== 0. Logo entrará no laço else automaticamente)
 
-
-        // }
-        if (order.id === 0){
+        if (order.id === 0) {
             // Significa que o estado é o inicial. - Iniciar o order
-            dispatch(setOrder({
-                id:0,
-                consumptionMethod: consumptionMethod as ConsumptionMethod,
-                status:"PENDING",
-                total: 1,
-                createdAt:new Date(),
-                updatedAt:new Date(),
-                restaurantId: restaurant.id
-            }))
+            // Acho que não pode usar um dispatcher atras do outro .-.
+            dispatch(createOrderWithProduct({ order: orderData, orderProduct: productData }))
         } else {
             // dispatch()
             console.log(order);
@@ -204,7 +216,7 @@ const ProductDetails = ({ product, restaurant, params, consumptionMethodProps }:
                         </p>
                     </div>
                     <div className="flex justify-between">
-                        <Link href={`/${slug}/menu/cart?consumptionMethod=DINE_IN`}>
+                        <Link href={`/cart`}>
                             <Button variant="ghost" className="rounded-3xl w-[130px] text-red-500 font-semibold">Ver pedidos</Button>
                         </Link>
                         <Button variant="secondary" className="rounded-3xl w-[130px] font-semibold" onClick={() => handleConfirmOrderProduct()}>Continuar</Button>

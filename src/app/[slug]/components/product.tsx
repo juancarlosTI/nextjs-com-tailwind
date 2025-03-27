@@ -7,7 +7,7 @@ import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { RootState } from "@/app/orders/store/components/store";
-import { createOrderWithProduct } from "@/app/orders/store/reducers/orderProducts-and-order";
+import { addProductToOrder, createOrderWithProduct } from "@/app/orders/store/reducers/orderProducts-and-order";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 
@@ -48,9 +48,13 @@ const ProductDetails = ({ product, restaurant, params, consumptionMethodProps }:
         }
 
         const productData = {
+            id: "",
+            orderId: 0,
             productId: product.id,
             quantity: quantity,
             price: product.price,
+            createdAt: new Date(),
+            updatedAt: new Date(),
             product: {
                 id: product.id,
                 name: product.name,
@@ -69,15 +73,15 @@ const ProductDetails = ({ product, restaurant, params, consumptionMethodProps }:
         // Verificar se já existe um pedido e se o método de consumo é o mesmo
         // Resolver problema de declaração de ID. (Quando um pedido já existir, ele existirá no banco de dados e terá um ID !== 0. Logo entrará no laço else automaticamente)
 
-        if (order.id === 0) {
+        if (order.total == 0) {
             console.log(orderData);
             console.log(productData);
             
             // Significa que o estado é o inicial. - Iniciar o order
             dispatch(createOrderWithProduct({ order: orderData, orderProduct: productData }))
             console.log("Ação despacha com sucesso")
-        } else {
-            // dispatch()
+        } else if(order.total > 0) {
+            dispatch(addProductToOrder(productData))
             console.log("oi");
         }
     }

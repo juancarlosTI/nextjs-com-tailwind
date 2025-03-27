@@ -43,7 +43,7 @@ const orderSlice = createSlice({
             state.restaurantId = action.payload.order.restaurantId;
             state.createdAt = new Date();
             state.updatedAt = new Date();
-            state.orderProduct = [
+            state.orderProduct.push(
                 {
                     productId: action.payload.orderProduct.productId,
                     quantity: action.payload.orderProduct.quantity,
@@ -54,7 +54,7 @@ const orderSlice = createSlice({
                     updatedAt: new Date(),
                     product: action.payload.orderProduct.product
                 },
-            ];
+            )
         },
 
         // Adiciona um produto ao pedido no estado

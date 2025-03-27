@@ -46,7 +46,7 @@ const RestaurantMenuPage = async ({ params, searchParams }: RestaurantMenuPagePr
             <ConsumptionMethodProvider consumptionMethod={consumptionMethod}>
                 <ConsumptionMethodWrapper>
                     <RestaurantHeader restaurant={restaurant} />
-                    <RestaurantCategories restaurant={restaurant} />
+                    <RestaurantCategories restaurant={restaurant} />              
                 </ConsumptionMethodWrapper>
             </ConsumptionMethodProvider>
 

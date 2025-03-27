@@ -1,5 +1,4 @@
 "use client"
-import { Prisma } from "@prisma/client";
 import Image from "next/image";
 import { useSelector } from "react-redux";
 

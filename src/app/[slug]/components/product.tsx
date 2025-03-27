@@ -2,7 +2,6 @@
 import { ConsumptionMethod, OrderStatus, Product, Restaurant } from "@prisma/client";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -10,8 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/app/orders/store/components/store";
 import { createOrderWithProduct } from "@/app/orders/store/reducers/orderProducts-and-order";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
+import { useToast } from "@/hooks/use-toast";
 
 
 interface ProductDetailsProps {
@@ -23,16 +21,11 @@ interface ProductDetailsProps {
 
 const ProductDetails = ({ product, restaurant, params, consumptionMethodProps }: ProductDetailsProps) => {
     const [quantity, setQuantity] = useState(1);
-    const [isModalOpen, setIsModalOpen] = useState({
-        isOpen: false,
-        validation: false
-    });
 
     const { slug } = params;
     const { consumptionMethod } = consumptionMethodProps;
+    const { toast } = useToast();
 
-    console.log(consumptionMethod)
-    // Como obter o pedido? Redux
     const dispatch = useDispatch();
     const order = useSelector((state: RootState) => state.order);
 
@@ -45,22 +38,7 @@ const ProductDetails = ({ product, restaurant, params, consumptionMethodProps }:
         }
     }
 
-    const handleModalOpen = () => {
-        console.log("Modal Open: ", order)
-        setIsModalOpen((prev) => ({
-            ...prev,
-            isOpen: !prev.isOpen
-        }))
-    }
-
-    const handleConfirmOrderProduct = () => {
-        // Salvar pedido no redux
-        if (isModalOpen.validation) {
-            return setIsModalOpen({
-                isOpen: false,
-                validation: false
-            })
-        }
+    const handleAddToCart = () => {
 
         const orderData = {
             consumptionMethod: consumptionMethod as ConsumptionMethod,
@@ -92,20 +70,17 @@ const ProductDetails = ({ product, restaurant, params, consumptionMethodProps }:
         // Resolver problema de declaração de ID. (Quando um pedido já existir, ele existirá no banco de dados e terá um ID !== 0. Logo entrará no laço else automaticamente)
 
         if (order.id === 0) {
+            console.log(orderData);
+            console.log(productData);
+            
             // Significa que o estado é o inicial. - Iniciar o order
-            // Acho que não pode usar um dispatcher atras do outro .-.
             dispatch(createOrderWithProduct({ order: orderData, orderProduct: productData }))
+            console.log("Ação despacha com sucesso")
         } else {
             // dispatch()
-            console.log(order);
+            console.log("oi");
         }
-
-        setIsModalOpen((prev) => ({
-            isOpen: !prev.isOpen,
-            validation: !prev.validation
-        }));
     }
-
     // chartContext possuirá o produto e a quantidade;
     // Só podem ser adicionado produtos da mesma loja por pedido;
 
@@ -170,59 +145,8 @@ const ProductDetails = ({ product, restaurant, params, consumptionMethodProps }:
                     </ul>
                 </div>
             </div>
-            <Button className="rounded-full" onClick={() => handleModalOpen()}>Adicionar à Sacola</Button>
+            <Button className="rounded-full" onClick={() => handleAddToCart()}>Adicionar à Sacola</Button>
 
-            {/* Modal */}
-            <Dialog open={isModalOpen.isOpen} onOpenChange={() => handleModalOpen()}>
-                <DialogContent className="rounded-3xl p-6 w-[340px]">
-                    <DialogHeader>
-                        <DialogTitle>Quase lá</DialogTitle>
-                        <p className="text-gray-500 text-center">
-                            Para finalizar seu pedido, insira os seus dados abaixo:
-                        </p>
-                    </DialogHeader>
-                    <form className="space-y-4">
-                        <h4>Seu nome</h4>
-                        <Input type="name" placeholder="Nome" />
-                        <h4>Seu CPF</h4>
-                        <Input type="cpf" placeholder="Seu CPF" />
-                    </form>
-                    <div className="flex justify-between">
-                        <Button onClick={() => handleModalOpen()} className="rounded-full bg-gray-300 w-[130px] font-semibold">Cancelar</Button>
-                        <Button className="rounded-full bg-red-500 w-[130px] font-semibold" onClick={() => handleConfirmOrderProduct()}>Finalizar</Button>
-                    </div>
-                </DialogContent>
-            </Dialog>
-
-            <Dialog open={isModalOpen.validation} onOpenChange={() => handleConfirmOrderProduct()}>
-                <DialogContent className="rounded-3xl flex flex-col w-[340px] min-h-[280px]">
-                    <DialogHeader className="flex flex-col items-center">
-                        <div className="flex justify-center w-[80px] h-[80px]">
-                            <Image
-                                src="/big-check-icon.png"
-                                alt="Order Checked"
-                                className="object-contain"
-                                width={72}
-                                height={72}
-                            />
-                        </div>
-                        <DialogTitle className="text-center">
-                            Pedido efetuado
-                        </DialogTitle>
-                    </DialogHeader>
-                    <div className="flex space-y-4">
-                        <p className="text-center">
-                            Seu pedido foi realizado com sucesso!
-                        </p>
-                    </div>
-                    <div className="flex justify-between">
-                        <Link href={`/cart`}>
-                            <Button variant="ghost" className="rounded-3xl w-[130px] text-red-500 font-semibold">Ver pedidos</Button>
-                        </Link>
-                        <Button variant="secondary" className="rounded-3xl w-[130px] font-semibold" onClick={() => handleConfirmOrderProduct()}>Continuar</Button>
-                    </div>
-                </DialogContent>
-            </Dialog>
         </div>
 
     );

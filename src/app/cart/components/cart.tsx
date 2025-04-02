@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useSelector } from "react-redux";
 
+import { useCart } from "@/app/[slug]/contexts/cartContext"; 
 import { RootState } from "@/app/orders/store/components/store";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -15,7 +16,7 @@ const Cart = () => {
 
     const cart = useSelector((state: RootState) => state.order);
     const [quantity, setQuantity] = useState(1);
-    const [isVisible, setIsVisible] = useState(false);
+    const { isCartVisible, setCartVisible } = useCart();
     const [isModalOpen, setIsModalOpen] = useState({
         isOpen: false,
         validation: false
@@ -31,6 +32,7 @@ const Cart = () => {
 
     const handleConfirmOrder = () => {
         // Salvar pedido no DB
+        // Zerar redux-order
         if (isModalOpen.validation) {
             return setIsModalOpen({
                 isOpen: false,
@@ -50,14 +52,14 @@ const Cart = () => {
     return (
         <div>
             {/* 🔹 Overlay escuro para bloquear interação no fundo */}
-            {isVisible && (
+            {isCartVisible && (
                 <div
                     className="fixed inset-0 bg-black bg-opacity-50 z-50"
-                    onClick={() => setIsVisible(false)}
+                    onClick={() => setCartVisible(false)}
                 ></div>
             )}
             <div className={`fixed top-0 right-0 z-50 px-5 py-3 w-[330px] h-full bg-white shadow-lg 
-                transition-transform duration-300 ${isVisible ? "translate-x-0" : "translate-x-full"}`}>
+                transition-transform duration-300 ${isCartVisible ? "translate-x-0" : "translate-x-full"}`}>
                 <p>Listar todas os items do pedido atual - OrderProduct</p>
                 <ul>
                     {cart.orderProduct.map((item, index) => {

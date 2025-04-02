@@ -1,4 +1,4 @@
-import { Order, OrderProduct, Prisma } from "@prisma/client";
+import { Order, Prisma } from "@prisma/client";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 type OrderProductWithProduct = Prisma.OrderProductGetPayload<{

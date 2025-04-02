@@ -41,3 +41,6 @@ export const addOrderProductToDb = async (
         throw err;
     }
 }
+
+// Ao adicionar um order (vindo do redux) ao banco de dados, não é possível alterar a order.
+// Muda de status "pending" para "in_preparation"

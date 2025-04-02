@@ -76,11 +76,11 @@ const ProductDetails = ({ product, restaurant, params, consumptionMethodProps }:
         if (order.total == 0) {
             console.log(orderData);
             console.log(productData);
-            
+
             // Significa que o estado é o inicial. - Iniciar o order
             dispatch(createOrderWithProduct({ order: orderData, orderProduct: productData }))
             console.log("Ação despacha com sucesso")
-        } else if(order.total > 0) {
+        } else if (order.total > 0) {
             dispatch(addProductToOrder(productData))
             console.log("oi");
         }

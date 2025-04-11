@@ -3,17 +3,19 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
-import { useCart } from "@/app/[slug]/contexts/cartContext"; 
+import { useCart } from "@/app/[slug]/contexts/cartContext";
 import { RootState } from "@/app/orders/store/components/store";
+import { resetOrder } from "@/app/orders/store/reducers/orderProducts-and-order";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 
 
-const Cart = () => {
 
+const Cart = () => {
+    const dispatch = useDispatch(); //agora você pode despachar ações
     const cart = useSelector((state: RootState) => state.order);
     const [quantity, setQuantity] = useState(1);
     const { isCartVisible, setCartVisible } = useCart();
@@ -30,8 +32,7 @@ const Cart = () => {
         }))
     }
 
-    const handleConfirmOrder = () => {
-        // Salvar pedido no DB
+    const handleConfirmOrder = async () => {
         // Zerar redux-order
         if (isModalOpen.validation) {
             return setIsModalOpen({
@@ -40,13 +41,46 @@ const Cart = () => {
             })
         }
 
-        setIsModalOpen((prev) => ({
-            isOpen: !prev.isOpen,
-            validation: !prev.validation
-        }));
+        const orderData = {
+            ...cart, // Copia as informações do carrinho
+            orderProducts: cart.orderProducts
+        };
+
+        // Salvar no db 
+        const response = await fetch("/orders/api", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(orderData),
+        });
+
+        if (!response.ok) {
+            console.error("Erro na resposta da API:", response.status, response.statusText);
+            return;
+        }
+    
+        const data = await response.json();
+        console.log("Resposta da API:", response);
+
+        if (data.success) {
+            // Aqui você pode fazer um dispatch para limpar o carrinho
+            dispatch(resetOrder());
+            setIsModalOpen({ isOpen: false, validation: true });
+        } else {
+            console.error("Erro ao finalizar pedido");
+        }
+        // setIsModalOpen((prev) => ({
+        //     isOpen: !prev.isOpen,
+        //     validation: !prev.validation
+        // }));
     }
 
-
+    const handleQuantityProduct = (type: string) => {
+        if (type === "minus" && quantity > 1) {
+            setQuantity(prevState => prevState - 1)
+        } else if (type === "plus") {
+            setQuantity(prevState => prevState + 1)
+        }
+    }
 
 
     return (
@@ -58,34 +92,84 @@ const Cart = () => {
                     onClick={() => setCartVisible(false)}
                 ></div>
             )}
-            <div className={`fixed top-0 right-0 z-50 px-5 py-3 w-[330px] h-full bg-white shadow-lg 
+            <div className={`flex flex-col fixed top-0 right-0 z-50 px-5 py-3 w-[330px] h-full bg-white shadow-lg 
                 transition-transform duration-300 ${isCartVisible ? "translate-x-0" : "translate-x-full"}`}>
-                <p>Listar todas os items do pedido atual - OrderProduct</p>
-                <ul>
-                    {cart.orderProduct.map((item, index) => {
+                <div className="flex justify-between mb-3 mt-10">
+                    <p><strong>Sacola</strong></p>
+                    <div className="relative w-[25px] h-[25px] flex items-center justify-center">
+                        <Image
+                            onClick={() => setCartVisible(false)}
+                            src="/X.png"
+                            alt="Close"
+                            width={20}
+                            height={20}
+                        />
+                    </div>
+                </div>
+                <ul className="flex flex-col overflow-y-auto h-[60vh]">
+                    {cart.orderProducts.map((item, index) => {
                         return <li className="flex items-center justify-between" key={index}>
+                            <Image
+                                src={item.product.imageUrl}
+                                alt={item.product.name}
+                                width={90}
+                                height={90}
+                            />
                             <div className="">
-                                <p>{item.product.name}</p>
-                                <p className="font-bold">R${item.product.price}</p>
+                                <p className="line-clamp-1 max-w-[140px] text-sm">{item.product.name}</p>
+                                <p className="font-bold text-base">R${item.product.price}</p>
                                 <div className="flex items-center gap-4">
-                                    <Button className={quantity > 1 ? "bg-red-500" : ""} onClick={() => setQuantity()} variant="outline" size="icon">
+                                    <Button className={`rounded-xl ${quantity > 1 ? "bg-red-500 text-white" : ""}`} onClick={() => handleQuantityProduct("minus")} variant="outline" size="icon">
                                         <ChevronLeft />
                                     </Button>
                                     <p className="w-[24px] text-center">{quantity}</p>
-                                    <Button className={quantity >= 1 ? "bg-red-500" : ""} onClick={() => setQuantity()} variant="outline" size="icon">
+                                    <Button className={`rounded-xl ${quantity >= 1 ? "bg-red-500 text-white" : ""}`} onClick={() => handleQuantityProduct("plus")} variant="outline" size="icon">
                                         <ChevronRight />
                                     </Button>
                                 </div>
                             </div>
-                            <Button></Button>
+                            <Button onClick={() => console.log("Excluir do orderProduct")} className="border px-2 bg-white" variant="secondary" size="sm">
+                                <div className="flex items-center justify-center">
+                                    <Image
+                                        className="rounded-3xl"
+                                        src="/Trash.png"
+                                        alt="Trash"
+                                        width={16}
+                                        height={16} />
+                                </div>
+
+                            </Button>
                         </li>
                     })}
                 </ul>
+                <div className="flex flex-col mt-auto w-[307px] h-[130px] gap-2 border p-5 border rounded-3xl">
+                    <div className="flex justify-between px-3">
+                        <p>Subtotal</p>
+                        <p>Preço</p>
+                    </div>
+                    <div className="flex justify-between px-3">
+                        <p>Descontos</p>
+                        <p>Preço</p>
+                    </div>
+                    <div>
+                        <strong className="flex justify-between px-3">
+                            <p>Total</p>
+                            <p>Preço</p>
+                        </strong>
+                    </div>
+                </div>
+                <Button
+                    variant="default"
+                    className="mt-5 flex h-[40px] rounded-3xl"
+                    onClick={() => handleModalOpen()}>
+                    Terminar pedido
+                </Button>
             </div>
+
             <div>
                 {/* Modal */}
                 <Dialog open={isModalOpen.isOpen} onOpenChange={() => handleModalOpen()}>
-                    <DialogContent className="rounded-3xl p-6 w-[340px]">
+                    <DialogContent className="z-50 rounded-3xl p-6 w-[340px]">
                         <DialogHeader>
                             <DialogTitle>Quase lá</DialogTitle>
                             <p className="text-gray-500 text-center">
@@ -106,7 +190,7 @@ const Cart = () => {
                 </Dialog>
 
                 <Dialog open={isModalOpen.validation} onOpenChange={() => handleConfirmOrder()}>
-                    <DialogContent className="rounded-3xl flex flex-col w-[340px] min-h-[280px]">
+                    <DialogContent className="z-50 rounded-3xl flex flex-col w-[340px] min-h-[280px]">
                         <DialogHeader className="flex flex-col items-center">
                             <div className="flex justify-center w-[80px] h-[80px]">
                                 <Image
@@ -135,7 +219,7 @@ const Cart = () => {
                     </DialogContent>
                 </Dialog>
             </div>
-        </div>
+        </div >
 
     )
 }

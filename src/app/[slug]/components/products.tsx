@@ -1,6 +1,5 @@
 "use client";
 import { Product } from "@prisma/client";
-import { DialogTitle } from "@radix-ui/react-dialog";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -9,7 +8,6 @@ import { useSelector } from "react-redux";
 
 import { RootState } from "@/app/orders/store/components/store";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog";
 
 import { useCart } from "../contexts/cartContext";
 import { useConsumptionMethod } from "../contexts/consumptionMethodContext";
@@ -77,9 +75,9 @@ const Products = ({ products }: ProductsProps) => {
                 <div className="flex w-full px-5 py-3 items-center justify-between">
                     <div>
                         <p>Total dos pedidos</p>
-                        <p><strong>R$ {orders.total}</strong>/{orders.orderProduct.length} item</p>
+                        <p><strong>R$ {orders.total}</strong>/{orders.orderProducts.length} item</p>
                     </div>
-                    <Button variant="secret" className="bg-red-500" onClick={() => setCartVisible(!isCartVisible)}>Ver Sacola</Button>
+                    <Button variant="secret" className="bg-red-500 text-white" onClick={() => setCartVisible(!isCartVisible)}>Ver Sacola</Button>
                     {/* Modal - Lista todos os orderProducts */}
                 </div>
                 :

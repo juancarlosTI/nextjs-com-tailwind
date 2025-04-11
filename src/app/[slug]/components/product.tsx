@@ -78,11 +78,10 @@ const ProductDetails = ({ product, restaurant, params, consumptionMethodProps }:
             console.log(productData);
 
             // Significa que o estado é o inicial. - Iniciar o order
-            dispatch(createOrderWithProduct({ order: orderData, orderProduct: productData }))
+            dispatch(createOrderWithProduct({ order: orderData, orderProducts: productData }))
             console.log("Ação despacha com sucesso")
         } else if (order.total > 0) {
             dispatch(addProductToOrder(productData))
-            console.log("oi");
         }
     }
     // chartContext possuirá o produto e a quantidade;
@@ -109,11 +108,11 @@ const ProductDetails = ({ product, restaurant, params, consumptionMethodProps }:
                 <div className="flex items-center gap-2 justify-between">
                     <p className="text-2xl font-semibold">R${product.price}</p>
                     <div className="flex items-center justify-center gap-4">
-                        <Button className={quantity > 1 ? "bg-red-500" : ""} onClick={() => handleQuantity("minus")} variant="outline" size="icon">
+                        <Button className={quantity > 1 ? "bg-red-500 text-white" : ""} onClick={() => handleQuantity("minus")} variant="outline" size="icon">
                             <ChevronLeft />
                         </Button>
                         <p className="w-[24px] text-center">{quantity}</p>
-                        <Button className={quantity >= 1 ? "bg-red-500" : ""} onClick={() => handleQuantity("plus")} variant="outline" size="icon">
+                        <Button className={quantity >= 1 ? "bg-red-500 text-white" : ""} onClick={() => handleQuantity("plus")} variant="outline" size="icon">
                             <ChevronRight />
                         </Button>
                     </div>

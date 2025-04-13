@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
+import { useAddToCart } from "@/app/hooks/useAddToCart";
 import { RootState } from "@/app/orders/store/components/store";
 import { addProductToOrder, createOrderWithProduct } from "@/app/orders/store/reducers/orderProducts-and-order";
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,7 @@ const ProductDetails = ({ product, restaurant, params, consumptionMethodProps }:
     const [quantity, setQuantity] = useState(1);
 
     const { slug } = params;
+    const { handleAddToCart } = useAddToCart();
     const { consumptionMethod } = consumptionMethodProps;
     const { toast } = useToast();
 
@@ -38,52 +40,7 @@ const ProductDetails = ({ product, restaurant, params, consumptionMethodProps }:
         }
     }
 
-    const handleAddToCart = () => {
-
-        const orderData = {
-            consumptionMethod: consumptionMethod as ConsumptionMethod,
-            status: "PENDING" as OrderStatus,
-            total: product.price * quantity,
-            restaurantId: restaurant.id
-        }
-
-        const productData = {
-            id: "",
-            orderId: 0,
-            productId: product.id,
-            quantity: quantity,
-            price: product.price,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-            product: {
-                id: product.id,
-                name: product.name,
-                description: product.description,
-                price: product.price,
-                imageUrl: product.imageUrl,
-                ingredients: product.ingredients,
-                restaurantId: product.restaurantId,
-                menuCategoryId: product.menuCategoryId,
-                createdAt: new Date(),
-                updatedAt: new Date(),
-            }
-        }
-
-        // Verificar se o pedido que está sendo adicionado é do mesmo restaurante
-        // Verificar se já existe um pedido e se o método de consumo é o mesmo
-        // Resolver problema de declaração de ID. (Quando um pedido já existir, ele existirá no banco de dados e terá um ID !== 0. Logo entrará no laço else automaticamente)
-
-        if (order.total == 0) {
-            console.log(orderData);
-            console.log(productData);
-
-            // Significa que o estado é o inicial. - Iniciar o order
-            dispatch(createOrderWithProduct({ order: orderData, orderProducts: productData }))
-            console.log("Ação despacha com sucesso")
-        } else if (order.total > 0) {
-            dispatch(addProductToOrder(productData))
-        }
-    }
+    
     // chartContext possuirá o produto e a quantidade;
     // Só podem ser adicionado produtos da mesma loja por pedido;
 
@@ -148,7 +105,7 @@ const ProductDetails = ({ product, restaurant, params, consumptionMethodProps }:
                     </ul>
                 </div>
             </div>
-            <Button className="rounded-full" onClick={() => handleAddToCart()}>Adicionar à Sacola</Button>
+            <Button className="rounded-full" onClick={() => handleAddToCart({product,restaurant,consumptionMethod: consumptionMethod as ConsumptionMethod, quantity})}>Adicionar à Sacola</Button>
 
         </div>
 

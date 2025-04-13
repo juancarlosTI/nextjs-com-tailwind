@@ -10,6 +10,9 @@ export default {
   theme: {
   	extend: {
   		colors: {
+			creme: "#FFFBEB",
+			textcreme: "#FFB100",
+			sucessgreen: "#5DC05B",
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
   			card: {

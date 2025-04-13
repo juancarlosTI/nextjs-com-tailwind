@@ -78,7 +78,7 @@ const Products = ({ products }: ProductsProps) => {
                         <p><strong>R$ {orders.total}</strong>/{orders.orderProducts.length} item</p>
                     </div>
                     <Button variant="secret" className="bg-red-500 text-white" onClick={() => setCartVisible(!isCartVisible)}>Ver Sacola</Button>
-                    {/* Modal - Lista todos os orderProducts */}
+                    {/* Modal - Lista todos os orderProducts adicionados a sacola */}
                 </div>
                 :
                 <p className="hidden">
